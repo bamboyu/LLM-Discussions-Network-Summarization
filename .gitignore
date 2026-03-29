@@ -1,0 +1,40 @@
+.env
+.env.*
+!.env.example
+
+*.csv
+*.gpickle
+*.json
+!/data/processed/.gitkeep
+
+
+# ==========================================
+# POETRY & VIRTUAL ENVIRONMENTS
+# ==========================================
+.venv/
+venv/
+env/
+
+# ==========================================
+# PYTHON CACHE & COMPILED FILES
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Ignore saved model weights and tensorboard logs
+*.pt
+*.pth
+*.ckpt
+/runs/
+/logs/
+
+# ==========================================
+# OS & IDE FILES
+# ==========================================
+.DS_Store
+.vscode/
+.idea/
+*.swp
