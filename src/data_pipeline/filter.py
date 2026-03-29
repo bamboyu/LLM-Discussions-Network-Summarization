@@ -1,10 +1,9 @@
-# FOR FILTERING THE RAW DATA TO A BALANCED 1 MILLION ROWS
-
 import bz2
 import json
 import csv
+import os  # Added for folder management
 
-# 1. The "Golden 40" Mix (Niche + Hubs)
+# 1. The 40 subreddits
 target_subreddits = {
     'machinelearning', 'datascience', 'statistics', 'rstats', 'learnmachinelearning',
     'programming', 'javascript', 'python', 'reactjs', 'webdev',
@@ -16,20 +15,26 @@ target_subreddits = {
     'science', 'pics', 'news', 'videos', 'technology'
 }
 
-# 2. Smart Limits
-MAX_PER_SUB = 50000     # Cap the giant subs so they don't drown out the niche ones
-TOTAL_GOAL = 1000000    # STOP the whole script once we hit 1 million total rows
+# 2. Setting Limits
+MAX_PER_SUB = 50000 
+TOTAL_GOAL = 1000000 
 subreddit_counts = {sub: 0 for sub in target_subreddits}
 
-input_file = 'RC_2015-01.bz2'
-output_file = 'balanced_reddit_1M.csv'
+input_dir = os.path.join('data', 'raw')
+input_file = os.path.join(input_dir, 'RC_2015-01.bz2')
+output_dir = os.path.join('data', 'processed')
+output_file = os.path.join(output_dir, 'balanced_reddit_1M.csv')
+
+# Ensure the directory exists before we start writing
+os.makedirs(output_dir, exist_ok=True)
 
 with open(output_file, 'w', newline='', encoding='utf-8') as f_out:
     writer = csv.writer(f_out)
-    # Added 'score' to the header
-    writer.writerow(['id', 'author', 'parent_id', 'subreddit', 'score', 'body'])
+    # Header includes link_id for post-level grouping
+    writer.writerow(['id', 'author', 'parent_id', 'link_id', 'subreddit', 'score', 'body'])
 
-    print(f"Starting extraction. Goal: {TOTAL_GOAL} total comments.")
+    print(f"Starting extraction to: {output_file}")
+    print(f"Goal: {TOTAL_GOAL} total comments.")
     
     with bz2.open(input_file, "rt", encoding="utf-8") as f_in:
         extracted_total = 0
@@ -44,30 +49,28 @@ with open(output_file, 'w', newline='', encoding='utf-8') as f_out:
                 comment = json.loads(line)
                 sub = comment.get('subreddit')
                 
-                # Safely handle missing subreddit fields
                 if not sub:
                     continue
                 sub = sub.lower()
                 
-                # Logic: Is it a target sub AND is that sub under its personal cap?
                 if sub in target_subreddits and subreddit_counts[sub] < MAX_PER_SUB:
                     author = comment.get('author')
                     body = comment.get('body')
                     
                     if author != '[deleted]' and body != '[deleted]':
                         writer.writerow([
-                            comment.get('name'),
+                            comment.get('name'),      # id (t1_xxx)
                             author,
-                            comment.get('parent_id'),
+                            comment.get('parent_id'), 
+                            comment.get('link_id'),   # link_id (t3_xxx)
                             comment.get('subreddit'),
-                            comment.get('score'), # ADDED SCORE HERE
-                            body.replace('\n', ' ').replace('\r', '') # Clean newlines for CSV safety
+                            comment.get('score'), 
+                            body.replace('\n', ' ').replace('\r', '') 
                         ])
                         
                         subreddit_counts[sub] += 1
                         extracted_total += 1
                 
-                # THE MASTER STOP: Exit as soon as we hit 1 million total
                 if extracted_total >= TOTAL_GOAL:
                     print(f"\nSUCCESS: Reached total goal of {TOTAL_GOAL} comments!")
                     break
@@ -75,7 +78,7 @@ with open(output_file, 'w', newline='', encoding='utf-8') as f_out:
             except Exception:
                 continue
 
-# Print a small report so you can see which subs were "small"
+# Print a small report
 print("\n--- Extraction Report ---")
 for sub, count in sorted(subreddit_counts.items(), key=lambda x: x[1], reverse=True):
     if count > 0:

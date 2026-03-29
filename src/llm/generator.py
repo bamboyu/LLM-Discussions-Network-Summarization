@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# 1. THE MOCK DATA (Faking Khoi and Dai's output)
+# 1. MOCK DATA (Replace this with your actual graph extraction logic later)
 mock_top_nodes = [
     {
         "author": "TechGuru99",
@@ -21,7 +21,7 @@ mock_top_nodes = [
     }
 ]
 
-# 2. THE PROMPT BUILDER
+# 2. PROMPT
 def build_summary_prompt(nodes):
     """Formats the extracted graph nodes into a clean prompt for the LLM."""
     
@@ -38,7 +38,7 @@ def build_summary_prompt(nodes):
     
     return system_instruction, context_text
 
-# 3. THE API CALL
+# 3. API CALL
 def generate_summary(nodes, api_key):
     """Sends the formatted prompt to the LLM and returns the summary."""
     client = OpenAI(api_key=api_key)
@@ -66,8 +66,8 @@ if __name__ == "__main__":
     # Securely fetch the API key
     MY_API_KEY = os.getenv("OPENAI_API_KEY")
     
-    # Safety check to make sure the user actually set up their .env file
-    if not MY_API_KEY or MY_API_KEY == "your_actual_api_key_goes_here":
+    # Safety check to make sure .env file is set up correctly
+    if not MY_API_KEY:
         print("ERROR: Could not find a valid OPENAI_API_KEY.")
         print("Please make sure you have a .env file set up in your project root!")
     else:

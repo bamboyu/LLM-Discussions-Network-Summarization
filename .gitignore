@@ -5,8 +5,10 @@
 *.csv
 *.gpickle
 *.json
+*.bz2
 !/data/processed/.gitkeep
-
+!/data/graphs/.gitkeep
+!/data/raw/.gitkeep
 
 # ==========================================
 # POETRY & VIRTUAL ENVIRONMENTS
