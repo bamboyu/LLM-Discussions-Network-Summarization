@@ -17,7 +17,7 @@ def analyze_results():
         print("Your results file is empty!")
         return
 
-    metrics = ['Comprehensiveness', 'Core_Extraction', 'Consistency', 'Total']
+    metrics = ['Core_Extraction', 'Consistency', 'Total']
     
     # Accumulators for average calculations
     baseline_totals = {m: 0 for m in metrics}

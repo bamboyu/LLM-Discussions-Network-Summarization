@@ -34,14 +34,13 @@ def generate_summary(prompt_text, is_baseline=True):
 def evaluate_summaries(original_thread, summary_a, summary_b):
     judge_system_prompt = """You are an impartial, reference-free evaluator. You will be provided with an original Reddit conversation, followed by Summary A and Summary B. 
 Score each summary from 1 to 10 on the following metrics:
-1. Comprehensiveness: Does it capture the breadth of the discussion?
-2. Core_Extraction: Does it highlight the most structurally important arguments?
-3. Consistency: Is it factually accurate to the source without hallucinations?
+1. Core_Extraction: Does it highlight the most structurally important arguments?
+2. Consistency: Is it factually accurate to the source without hallucinations?
 
 Return ONLY a valid JSON object in this format:
 {
-  "Summary_A": {"Comprehensiveness": 0, "Core_Extraction": 0, "Consistency": 0, "Total": 0},
-  "Summary_B": {"Comprehensiveness": 0, "Core_Extraction": 0, "Consistency": 0, "Total": 0},
+  "Summary_A": {"Core_Extraction": 0, "Consistency": 0, "Total": 0},
+  "Summary_B": {"Core_Extraction": 0, "Consistency": 0, "Total": 0},
   "Reasoning": "Brief explanation of why one won over the other."
 }"""
     
@@ -77,7 +76,7 @@ def run_experiment():
     try:
         for idx, thread in enumerate(test_threads):
             # Stop automatically once we have exactly 50 perfect results
-            if successful_evaluations >= 50:
+            if successful_evaluations >= 30:
                 print("\n🎯 Reached target of 50 successful evaluations!")
                 break
 
@@ -93,7 +92,7 @@ def run_experiment():
             print(f"Word Count: ~{word_count} words")
             
             # 2. Skip it IMMEDIATELY if it's too big
-            if word_count > 80000:
+            if word_count > 8000:
                 print(f"⏭️ Skipping {thread['link_id']} - Too large for limits.")
                 continue
                 
