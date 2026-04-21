@@ -19,7 +19,7 @@ def generate_summary(prompt_text, is_baseline=True):
     if is_baseline:
         system_instruction = "You are an expert summarizer. Read the following raw Reddit thread and summarize the core arguments and main conclusions."
     else:
-        system_instruction = "You are an expert summarizer. Read the following hierarchical Reddit thread. Use the provided metadata [Score, Replies, Author's comment count] to identify the most authoritative arguments, ignoring downvoted noise."
+        system_instruction = "You are an expert summarizer. Read the following hierarchical Reddit thread. Use the provided metadata [Score, Replies, Author's comment count] to identify the most authoritative arguments"
 
     response = client.chat.completions.create(
         model="gpt-5.4-mini", 
