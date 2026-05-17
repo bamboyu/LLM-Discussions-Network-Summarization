@@ -1,0 +1,22 @@
+[project]
+name = "LLM-Discussions-Network-Summarization"
+version = "0.1.0"
+description = "Summarizing Reddit Community Discussions Using Network Context"
+
+requires-python = ">=3.11,<4.0"
+
+dependencies = [
+    "networkx>=3.2",
+    "openai>=1.14",
+    "python-dotenv>=1.0",
+    "pandas>=2.2",
+    "sumy>=0.11",
+    "deepeval (>=3.9.7,<4.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
