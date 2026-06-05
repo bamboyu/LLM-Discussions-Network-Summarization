@@ -8,25 +8,27 @@ from tqdm import tqdm
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+
 def generate_baseline(prompt_text):
     system_instruction = (
         "You are an expert data analyst. Your task is to summarize social media discussions. "
         "Focus purely on the main opinions, key arguments, and overall conclusion."
     )
-    
     response = client.chat.completions.create(
-        model="gpt-4o", 
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": system_instruction},
             {"role": "user", "content": prompt_text}
         ],
-        temperature=0.3
+        temperature=0.3,
+        max_tokens=200
     )
     return response.choices[0].message.content
 
+
 def run_baseline_generator():
     raw_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/processed/deep_threads_with_comments.json'))
-    proposed_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/processed/final_summaries_gpt4o.json')) 
+    proposed_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/processed/final_summaries_gpt4o.json'))
     output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/processed/baseline_summaries.json'))
 
     try:
@@ -42,7 +44,7 @@ def run_baseline_generator():
 
     results = []
     processed_ids = set()
-    
+
     if os.path.exists(output_path):
         try:
             with open(output_path, 'r', encoding='utf-8') as f:
@@ -62,18 +64,16 @@ def run_baseline_generator():
         if not raw_thread:
             continue
 
-        # Nối tất cả các bình luận thô lại
         raw_comments = [c.get('body', '') for c in raw_thread.get('comments', [])]
         raw_text = "\n".join([f"- User: {body}" for body in raw_comments])
-        
-        # PROMPT MỚI: Đồng bộ 100% với file generator.py (Đã xóa Thread_ID, dùng cấu trúc 4 phần)
+
         prompt = (
             f"Comments:\n{raw_text}\n\n"
-            f"Please provide a comprehensive and detailed summary of this discussion using the following strict structure:\n"
-            f"1. Core Topic: (Briefly describe the main subject being discussed)\n"
-            f"2. Main Viewpoints: (Detail the distinct sides or perspectives of the debate)\n"
-            f"3. Key Arguments & Evidence: (What specific reasoning, examples, or data did the users provide to support their views?)\n"
-            f"4. Overall Conclusion/Consensus: (Did the community reach an agreement, or did it remain divided?)"
+            f"Please summarize this discussion using the following structure:\n"
+            f"1. Core Topic: (1-2 sentences. Briefly describe the main subject being discussed)\n"
+            f"2. Main Viewpoints: (2-3 sentences. Detail the distinct sides or perspectives of the debate)\n"
+            f"3. Key Arguments & Evidence: (2-3 sentences. What specific reasoning or examples did users provide?)\n"
+            f"4. Overall Conclusion: (1 sentence. Did the community reach an agreement or remain divided?)"
         )
 
         success = False
@@ -87,10 +87,8 @@ def run_baseline_generator():
                     "thread_id": thread_id,
                     "summary": summary
                 })
-                
                 with open(output_path, 'w', encoding='utf-8') as f:
                     json.dump(results, f, ensure_ascii=False, indent=4)
-                    
                 success = True
             except RateLimitError:
                 retries += 1
@@ -101,6 +99,7 @@ def run_baseline_generator():
                 break
 
     print(f"\n[XONG] File Baseline đã sẵn sàng tại: {output_path}")
+
 
 if __name__ == "__main__":
     run_baseline_generator()
